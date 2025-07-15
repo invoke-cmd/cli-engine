@@ -1,0 +1,812 @@
+## templates/register.html
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - Web CLI Engine</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #1e1e1e;
+            color: #d4d4d4;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .register-container {
+            background-color: #2d2d2d;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            width: 100%;
+            max-width: 450px;
+        }
+        
+        .form-control {
+            background-color: #1e1e1e;
+            border: 1px solid #3e3e3e;
+            color: #d4d4d4;
+        }
+        
+        .form-control:focus {
+            background-color: #1e1e1e;
+            border-color: #007acc;
+            color: #d4d4d4;
+            box-shadow: 0 0 5px rgba(0, 122, 204, 0.5);
+        }
+        
+        .btn-primary {
+            background-color: #007acc;
+            border-color: #007acc;
+        }
+        
+        .btn-primary:hover {
+            background-color: #005a9e;
+            border-color: #005a9e;
+        }
+        
+        .alert {
+            background-color: #3e3e3e;
+            border: 1px solid #4e4e4e;
+            color: #d4d4d4;
+        }
+        
+        .alert-error {
+            border-color: #f48771;
+            color: #f48771;
+        }
+        
+        .alert-info {
+            border-color: #4ec9b0;
+            color: #4ec9b0;
+        }
+        
+        .text-muted {
+            color: #858585 !important;
+        }
+        
+        .link-primary {
+            color: #4ec9b0;
+            text-decoration: none;
+        }
+        
+        .link-primary:hover {
+            color: #6edcc3;
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="register-container">
+        <h2 class="text-center mb-4">Create Account</h2>
+        <p class="text-center text-muted mb-4">Register with your enterprise Git credentials</p>
+        
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        
+        <form method="POST" action="{{ url_for('auth.register') }}">
+            {{ form.hidden_tag() }}
+            
+            <div class="mb-3">
+                {{ form.username.label(class="form-label") }}
+                {{ form.username(class="form-control", placeholder="Enter your Git username") }}
+                {% if form.username.errors %}
+                    <div class="text-danger small mt-1">
+                        {% for error in form.username.errors %}
+                            <div>{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+                <div class="form-text text-muted">Use your enterprise Git/LDAP username</div>
+            </div>
+            
+            <div class="mb-3">
+                {{ form.email.label(class="form-label") }}
+                {{ form.email(class="form-control", placeholder="your.email@company.com") }}
+                {% if form.email.errors %}
+                    <div class="text-danger small mt-1">
+                        {% for error in form.email.errors %}
+                            <div>{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+            
+            <div class="mb-4">
+                {{ form.password.label(class="form-label") }}
+                {{ form.password(class="form-control", placeholder="Enter your Git password") }}
+                {% if form.password.errors %}
+                    <div class="text-danger small mt-1">
+                        {% for error in form.password.errors %}
+                            <div>{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+                <div class="form-text text-muted">This will be validated against your Git credentials</div>
+            </div>
+            
+            <div class="alert alert-info mb-4" role="alert">
+                <small>
+                    <strong>Note:</strong> After registration, your account will need to be approved by an administrator before you can access the CLI.
+                </small>
+            </div>
+            
+            <div class="d-grid">
+                {{ form.submit(class="btn btn-primary") }}
+            </div>
+        </form>
+        
+        <div class="text-center mt-4">
+            <span class="text-muted">Already have an account?</span>
+            <a href="{{ url_for('auth.login') }}" class="link-primary">Sign in here</a>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+```
+
+## templates/monitoring.html
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monitoring Dashboard - Web CLI Engine</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            background-color: #1e1e1e;
+            color: #d4d4d4;
+        }
+        
+        .monitoring-container {
+            padding: 20px;
+        }
+        
+        .stat-card {
+            background-color: #2d2d2d;
+            border: 1px solid #3e3e3e;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #4ec9b0;
+        }
+        
+        .stat-label {
+            color: #858585;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+        }
+        
+        .server-status {
+            background-color: #252525;
+            border: 1px solid #3e3e3e;
+            border-radius: 6px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .status-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        
+        .status-online {
+            background-color: #4ec9b0;
+        }
+        
+        .status-offline {
+            background-color: #f48771;
+        }
+        
+        .status-warning {
+            background-color: #ce9178;
+        }
+        
+        .alert-item {
+            background-color: #3e3e3e;
+            border-left: 4px solid #f48771;
+            padding: 12px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+        }
+        
+        .chart-container {
+            background-color: #2d2d2d;
+            border: 1px solid #3e3e3e;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            height: 400px;
+        }
+        
+        .refresh-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #007acc;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            font-size: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .refresh-btn:hover {
+            background-color: #005a9e;
+            transform: rotate(180deg);
+        }
+        
+        .loading-spinner {
+            display: none;
+            text-align: center;
+            padding: 40px;
+        }
+        
+        .loading-spinner.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="monitoring-container">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2><i class="fas fa-chart-line"></i> Monitoring Dashboard</h2>
+            <div>
+                <select id="timeRange" class="form-select form-select-sm d-inline-block w-auto me-2">
+                    <option value="1h">Last Hour</option>
+                    <option value="24h" selected>Last 24 Hours</option>
+                    <option value="7d">Last 7 Days</option>
+                    <option value="30d">Last 30 Days</option>
+                </select>
+                <a href="/cli" class="btn btn-secondary btn-sm">
+                    <i class="fas fa-terminal"></i> Back to CLI
+                </a>
+            </div>
+        </div>
+        
+        <!-- Summary Stats -->
+        <div class="row">
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="stat-value" id="totalExecutions">0</div>
+                    <div class="stat-label">Total Executions</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="stat-value" id="failedExecutions">0</div>
+                    <div class="stat-label">Failed Executions</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="stat-value" id="activeConnections">0</div>
+                    <div class="stat-label">Active Connections</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="stat-value" id="successRate">0%</div>
+                    <div class="stat-label">Success Rate</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row">
+            <!-- Server Status -->
+            <div class="col-md-6">
+                <div class="stat-card">
+                    <h4 class="mb-3">Server Status</h4>
+                    <div id="serverStatus">
+                        <div class="loading-spinner active">
+                            <i class="fas fa-spinner fa-spin fa-2x"></i>
+                            <p class="mt-2">Loading server status...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Recent Alerts -->
+            <div class="col-md-6">
+                <div class="stat-card">
+                    <h4 class="mb-3">Recent Alerts</h4>
+                    <div id="alertsList" style="max-height: 300px; overflow-y: auto;">
+                        <div class="loading-spinner active">
+                            <i class="fas fa-spinner fa-spin fa-2x"></i>
+                            <p class="mt-2">Loading alerts...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Execution Chart -->
+        <div class="chart-container">
+            <h4 class="mb-3">Execution Trend</h4>
+            <canvas id="executionChart"></canvas>
+        </div>
+        
+        <!-- Command Frequency Chart -->
+        <div class="chart-container">
+            <h4 class="mb-3">Command Frequency</h4>
+            <canvas id="commandChart"></canvas>
+        </div>
+    </div>
+    
+    <button class="refresh-btn" onclick="refreshDashboard()">
+        <i class="fas fa-sync-alt"></i>
+    </button>
+    
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script>
+        let executionChart = null;
+        let commandChart = null;
+        
+        async function loadMonitoringData() {
+            try {
+                // Load statistics
+                const statsResponse = await axios.get('/api/monitoring/stats');
+                const stats = statsResponse.data;
+                
+                // Update summary stats
+                document.getElementById('totalExecutions').textContent = stats.total_executions.toLocaleString();
+                document.getElementById('failedExecutions').textContent = stats.failed_executions.toLocaleString();
+                document.getElementById('activeConnections').textContent = stats.active_connections;
+                
+                const successRate = stats.total_executions > 0 
+                    ? ((stats.total_executions - stats.failed_executions) / stats.total_executions * 100).toFixed(1)
+                    : 0;
+                document.getElementById('successRate').textContent = successRate + '%';
+                
+                // Update server status
+                updateServerStatus(stats.servers);
+                
+                // Load alerts
+                const alertsResponse = await axios.get('/api/monitoring/alerts');
+                updateAlerts(alertsResponse.data.alerts);
+                
+                // Update charts
+                updateCharts(stats);
+                
+            } catch (error) {
+                console.error('Failed to load monitoring data:', error);
+            }
+        }
+        
+        function updateServerStatus(servers) {
+            const container = document.getElementById('serverStatus');
+            container.innerHTML = '';
+            
+            if (Object.keys(servers).length === 0) {
+                container.innerHTML = '<p class="text-muted">No servers configured</p>';
+                return;
+            }
+            
+            for (const [name, data] of Object.entries(servers)) {
+                const statusClass = data.failures > 0 ? 'status-warning' : 'status-online';
+                const statusText = data.failures > 0 ? 'Warning' : 'Online';
+                
+                const serverDiv = document.createElement('div');
+                serverDiv.className = 'server-status';
+                serverDiv.innerHTML = `
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <span class="status-indicator ${statusClass}"></span>
+                            <strong>${name}</strong>
+                        </div>
+                        <div class="text-end">
+                            <small class="text-muted">Total: ${data.total} | Failed: ${data.failures}</small>
+                            <br>
+                            <small class="text-muted">Last: ${data.last_access}</small>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(serverDiv);
+            }
+        }
+        
+        function updateAlerts(alerts) {
+            const container = document.getElementById('alertsList');
+            container.innerHTML = '';
+            
+            if (alerts.length === 0) {
+                container.innerHTML = '<p class="text-muted">No recent alerts</p>';
+                return;
+            }
+            
+            alerts.forEach(alert => {
+                const alertDiv = document.createElement('div');
+                alertDiv.className = 'alert-item';
+                alertDiv.innerHTML = `
+                    <div class="d-flex justify-content-between">
+                        <strong>${alert.type}</strong>
+                        <small class="text-muted">${new Date(alert.timestamp).toLocaleString()}</small>
+                    </div>
+                    <div class="mt-1">${alert.message}</div>
+                `;
+                container.appendChild(alertDiv);
+            });
+        }
+        
+        function updateCharts(stats) {
+            // Execution trend chart
+            const ctx1 = document.getElementById('executionChart').getContext('2d');
+            if (executionChart) {
+                executionChart.destroy();
+            }
+            
+            executionChart = new Chart(ctx1, {
+                type: 'line',
+                data: {
+                    labels: generateTimeLabels(24),
+                    datasets: [{
+                        label: 'Successful',
+                        data: generateRandomData(24, 50, 200),
+                        borderColor: '#4ec9b0',
+                        backgroundColor: 'rgba(78, 201, 176, 0.1)',
+                        tension: 0.3
+                    }, {
+                        label: 'Failed',
+                        data: generateRandomData(24, 0, 20),
+                        borderColor: '#f48771',
+                        backgroundColor: 'rgba(244, 135, 113, 0.1)',
+                        tension: 0.3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: '#d4d4d4'
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            ticks: {
+                                color: '#858585'
+                            },
+                            grid: {
+                                color: '#3e3e3e'
+                            }
+                        },
+                        y: {
+                            ticks: {
+                                color: '#858585'
+                            },
+                            grid: {
+                                color: '#3e3e3e'
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // Command frequency chart
+            const ctx2 = document.getElementById('commandChart').getContext('2d');
+            if (commandChart) {
+                commandChart.destroy();
+            }
+            
+            commandChart = new Chart(ctx2, {
+                type: 'bar',
+                data: {
+                    labels: ['system', 'git', 'remote-prod', 'remote-staging', 'database'],
+                    datasets: [{
+                        label: 'Command Count',
+                        data: [342, 256, 189, 145, 98],
+                        backgroundColor: '#007acc'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        x: {
+                            ticks: {
+                                color: '#858585'
+                            },
+                            grid: {
+                                color: '#3e3e3e'
+                            }
+                        },
+                        y: {
+                            ticks: {
+                                color: '#858585'
+                            },
+                            grid: {
+                                color: '#3e3e3e'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        function generateTimeLabels(hours) {
+            const labels = [];
+            const now = new Date();
+            for (let i = hours - 1; i >= 0; i--) {
+                const time = new Date(now - i * 60 * 60 * 1000);
+                labels.push(time.getHours() + ':00');
+            }
+            return labels;
+        }
+        
+        function generateRandomData(count, min, max) {
+            return Array.from({ length: count }, () => 
+                Math.floor(Math.random() * (max - min + 1)) + min
+            );
+        }
+        
+        function refreshDashboard() {
+            loadMonitoringData();
+        }
+        
+        // Auto-refresh every 30 seconds
+        setInterval(loadMonitoringData, 30000);
+        
+        // Initial load
+        document.addEventListener('DOMContentLoaded', () => {
+            loadMonitoringData();
+        });
+    </script>
+</body>
+</html>
+```
+
+## templates/base.html (Optional base template for consistency)
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Web CLI Engine{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #1e1e1e;
+            color: #d4d4d4;
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+        }
+        
+        .navbar {
+            background-color: #2d2d2d;
+            border-bottom: 1px solid #3e3e3e;
+        }
+        
+        .navbar-brand {
+            color: #4ec9b0 !important;
+            font-weight: bold;
+        }
+        
+        .nav-link {
+            color: #d4d4d4 !important;
+        }
+        
+        .nav-link:hover {
+            color: #4ec9b0 !important;
+        }
+        
+        {% block extra_css %}{% endblock %}
+    </style>
+</head>
+<body>
+    {% if current_user.is_authenticated %}
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/cli">
+                <i class="fas fa-terminal"></i> Web CLI Engine
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/cli">
+                            <i class="fas fa-terminal"></i> CLI
+                        </a>
+                    </li>
+                    {% if current_user.is_admin %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin">
+                            <i class="fas fa-users-cog"></i> Admin
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/monitoring">
+                            <i class="fas fa-chart-line"></i> Monitoring
+                        </a>
+                    </li>
+                    {% endif %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="/auth/logout">
+                            <i class="fas fa-sign-out-alt"></i> Logout
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    {% endif %}
+    
+    {% block content %}{% endblock %}
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>
+```
+
+## .env.example
+
+```
+# Application Settings
+FLASK_ENV=development
+SECRET_KEY=your-secret-key-change-in-production
+
+# Database
+DATABASE_URL=sqlite:///cli_engine.db
+# For production use PostgreSQL:
+# DATABASE_URL=postgresql://user:password@localhost/cli_engine
+
+# Redis
+REDIS_URL=redis://localhost:6379/0
+
+# Security
+ENCRYPTION_KEY=your-encryption-key-here
+REMOTE_ENCRYPTION_KEY=your-remote-encryption-key-here
+
+# Git/LDAP Integration
+GIT_SERVER_URL=https://git.company.com
+LDAP_SERVER=ldap://ldap.company.com
+LDAP_BASE_DN=dc=company,dc=com
+
+# Remote Execution
+API_SECRET=your-api-secret-key
+SSH_KEY_PATH=/etc/cli-engine/keys
+
+# Email Settings (for alerts)
+MAIL_SERVER=smtp.company.com
+MAIL_PORT=587
+MAIL_USE_TLS=true
+MAIL_USERNAME=cli-alerts@company.com
+MAIL_PASSWORD=your-email-password
+
+# Monitoring
+ENABLE_MONITORING=true
+ALERT_EMAIL=security@company.com
+SLACK_WEBHOOK_URL=https://hooks.slack.com/services/YOUR/WEBHOOK/URL
+```
+
+## Additional CSS file for better styling
+
+```css
+/* static/css/cli-theme.css */
+:root {
+    --bg-primary: #1e1e1e;
+    --bg-secondary: #252526;
+    --bg-tertiary: #2d2d30;
+    --border-color: #3e3e42;
+    --text-primary: #cccccc;
+    --text-secondary: #858585;
+    --accent-blue: #007acc;
+    --accent-green: #4ec9b0;
+    --accent-red: #f48771;
+    --accent-yellow: #ce9178;
+    --accent-purple: #c586c0;
+}
+
+/* Global Styles */
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+/* Form Enhancements */
+.form-control:disabled,
+.form-control[readonly] {
+    background-color: var(--bg-tertiary);
+    opacity: 0.6;
+}
+
+.form-label {
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+}
+
+.form-text {
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+}
+
+/* Button Variants */
+.btn-terminal {
+    background-color: var(--accent-green);
+    color: var(--bg-primary);
+    border: none;
+}
+
+.btn-terminal:hover {
+    background-color: #3eb899;
+    color: var(--bg-primary);
+}
+
+/* Utility Classes */
+.text-accent-blue { color: var(--accent-blue); }
+.text-accent-green { color: var(--accent-green); }
+.text-accent-red { color: var(--accent-red); }
+.text-accent-yellow { color: var(--accent-yellow); }
+.text-accent-purple { color: var(--accent-purple); }
+
+.bg-darker { background-color: #181818; }
+.border-subtle { border-color: var(--border-color) !important; }
+
+/* Animations */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.fade-in {
+    animation: fadeIn 0.3s ease-out;
+}
+
+/* Responsive Utilities */
+@media (max-width: 768px) {
+    .hide-mobile { display: none !important; }
+}
+
+@media (min-width: 769px) {
+    .show-mobile { display: none !important; }
+}
+```
